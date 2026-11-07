@@ -1,0 +1,2 @@
+set harvester_version=v1.8.2
+set extra_iso_cmdline='rd.neednet=1 ip=10.132.0.13::10.132.0.254:255.255.255.0:harvester3:1320:none nameserver=192.168.160.53 bond=bond0:eno1np0,eno2np1:mode=active-backup,miimon=100 vlan=1320:bond0 net.ifnames=1 rd.noverifyssl console=tty1 harvester.install.automatic=true harvester.install.config_url=http://192.168.160.30/build/harvester3.yaml'
