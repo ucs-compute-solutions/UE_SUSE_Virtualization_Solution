@@ -35,7 +35,7 @@ PROFILE_NAME_PAD_WIDTH=2
 # 2) Local User / Role
 # -----------------------------------------------------------------------------
 LOCAL_USER_NAME="admin"
-LOCAL_USER_PASSWORD="H1ghV0lt"
+LOCAL_USER_PASSWORD="Hallo2026!"
 ADMIN_ENDPOINT_ROLE_NAME="admin"
 LOCAL_USER_POLICY_NAME="${PREFIX}local-user-policy"
 
