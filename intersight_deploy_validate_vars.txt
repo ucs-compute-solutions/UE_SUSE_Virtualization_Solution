@@ -1,0 +1,183 @@
+# =============================================================================
+# Intersight Deploy/Validate Variables (Tenant3)
+# =============================================================================
+# This file is sourced by:
+#   ./Documents/Tenant3/intersight_deploy_validate.sh
+#
+# Notes:
+# - Keep this file in shell KEY=VALUE format.
+# - Do not put spaces around '='.
+# - No fixed server serials are used; servers are selected dynamically from the
+#   resource group assigned to ORG_NAME.
+# - SERVER_PROFILE_COUNT must be 1..5.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1) Access and Scope
+# -----------------------------------------------------------------------------
+SECRET_KEY_PATH="./T3-SecretKey.txt"
+
+ORG_NAME="tenant3"
+RESOURCE_GROUP_NAME="tenant3"
+INTERSIGHT_CONNECT_RETRIES=20
+INTERSIGHT_CONNECT_DELAY_SEC=15
+PREFIX="t3-"
+TARGET_PLATFORM="UnifiedEdgeServer"
+
+# Number of server profiles to create and validate (1..5).
+SERVER_PROFILE_COUNT=5
+
+# Profile naming pattern. Result names become e.g. T5-ubuntu-sp-01 ... -05
+PROFILE_NAME_PREFIX="t3-harvester-sp-"
+PROFILE_NAME_PAD_WIDTH=2
+
+# -----------------------------------------------------------------------------
+# 2) Local User / Role
+# -----------------------------------------------------------------------------
+LOCAL_USER_NAME="admin"
+LOCAL_USER_PASSWORD="H1ghV0lt"
+ADMIN_ENDPOINT_ROLE_NAME="admin"
+LOCAL_USER_POLICY_NAME="${PREFIX}local-user-policy"
+
+# -----------------------------------------------------------------------------
+# 3) Networking and Addressing
+# -----------------------------------------------------------------------------
+MGMT_GATEWAY="10.132.0.254"
+MGMT_NETMASK="255.255.255.0"
+MGMT_IP_FROM="10.132.0.240"
+MGMT_IP_TO="10.132.0.249"
+DNS_SERVERS="192.168.160.53,192.168.160.54"
+NTP_SERVERS="172.26.163.53,172.26.163.54"
+TIMEZONE="America/New_York"
+
+INBAND_VLAN=1320
+NATIVE_VLAN=
+ALLOWED_VLANS="1320,1321,1322,1323,1324"
+
+MAC_FROM="00:25:B5:26:03:01"
+MAC_TO="00:25:B5:26:03:FF"
+
+VNIC1_NAME="eno1np0"
+VNIC2_NAME="eno2np1"
+VNIC1_SWITCH_ID="A"
+VNIC2_SWITCH_ID="B"
+ETH_MTU=1500
+
+# -----------------------------------------------------------------------------
+# 4) Storage / Boot / vMedia / UUID
+# -----------------------------------------------------------------------------
+M2_CONTROLLER_SLOT="MSTOR-RAID-1,MSTOR-RAID-2"
+M2_VD_NAME="m2_boot_raid1"
+BOOT_LOCALDISK_NAME="MStorRaidVD"
+BOOT_LOCALDISK_SLOT="MSTOR-RAID"
+
+VMEDIA_DEVICE_TYPE="cdd"
+VMEDIA_MOUNT_PROTOCOL="https"
+VMEDIA_FILE_LOCATION="https://192.168.160.29/harvester-v1.8.2-amd64-custom.iso"
+VMEDIA_VOLUME_NAME="harvester-1.8.2"
+
+UUID_PREFIX="000025B5-0300-0000"
+UUID_SUFFIX_FROM="0000-000000000001"
+UUID_SUFFIX_TO="0000-0000000000FF"
+
+# -----------------------------------------------------------------------------
+# 5) Power / KVM
+# -----------------------------------------------------------------------------
+POWER_PRIORITY="Medium"
+POWER_RESTORE_STATE="LastState"
+POWER_SAVE_MODE="Enabled"
+
+KVM_ENABLED=true
+KVM_TUNNELED_ENABLED=true
+KVM_MAX_SESSIONS=4
+KVM_REMOTE_PORT=2068
+KVM_ENABLE_VIDEO_ENCRYPTION=true
+
+# -----------------------------------------------------------------------------
+# 6) Policy and Profile Names
+# -----------------------------------------------------------------------------
+IPPOOL_NAME="${PREFIX}mgmt-ippool"
+ACCESS_POLICY_NAME="${PREFIX}access-policy"
+BIOS_POLICY_NAME="${PREFIX}BIOS-Linux"
+POWER_POLICY_NAME="${PREFIX}power-balanced"
+KVM_POLICY_NAME="${PREFIX}vkvm-policy"
+MACPOOL_NAME="${PREFIX}macpool"
+ETH_QOS_POLICY_NAME="${PREFIX}ethqos-1500"
+ETH_NETWORK_GROUP_NAME="${PREFIX}eth-network-group"
+LCP_NAME="${PREFIX}lcp"
+STORAGE_POLICY_NAME="${PREFIX}storage-policy"
+BOOT_POLICY_NAME="${PREFIX}boot-policy"
+VMEDIA_POLICY_NAME="${PREFIX}vmedia-policy"
+UUIDPOOL_NAME="${PREFIX}uuidpool"
+PROFILE_TEMPLATE_NAME="${PREFIX}ubuntu-template"
+
+# -----------------------------------------------------------------------------
+# 6a) Unified Edge Profile and Port Policy
+# -----------------------------------------------------------------------------
+# These values mirror the live Unified Edge profile TEST in tenant7 without
+# reusing TEST's shared policy object names.
+UNIFIED_EDGE_PROFILE_NAME="${PREFIX}chassis1"
+UNIFIED_EDGE_ETH_NETWORK_POLICY_NAME="${PREFIX}vlan"
+UNIFIED_EDGE_PORT_POLICY_NAME="${PREFIX}ports"
+UNIFIED_EDGE_QOS_POLICY_NAME="${PREFIX}qos-besteffort"
+UNIFIED_EDGE_NETWORK_CONNECTIVITY_POLICY_NAME="${PREFIX}network-connectivity"
+UNIFIED_EDGE_NTP_POLICY_NAME="${PREFIX}ntp"
+UNIFIED_EDGE_DNS_SERVERS="${DNS_SERVERS}"
+UNIFIED_EDGE_NTP_SERVERS="${NTP_SERVERS}"
+UNIFIED_EDGE_NTP_TIMEZONE="${TIMEZONE}"
+UNIFIED_EDGE_PORT_POLICY_DEVICE_MODEL="UCSXE-ECMC-G1"
+UNIFIED_EDGE_ENABLE_PORT_POLICY=true
+UNIFIED_EDGE_ENABLE_UPLINK_ROLE=true
+UNIFIED_EDGE_UPLINK_SLOT_ID=1
+UNIFIED_EDGE_UPLINK_PORT_ID=1
+UNIFIED_EDGE_UPLINK_ADMIN_SPEED="Auto"
+UNIFIED_EDGE_UPLINK_FEC="Auto"
+UNIFIED_EDGE_ASSIGN_PROFILE=true
+UNIFIED_EDGE_DEPLOY_PROFILE=true
+
+# -----------------------------------------------------------------------------
+# 7) Deployment Controls (Mandatory Two-Step)
+# -----------------------------------------------------------------------------
+# Deploy and Activate are mandatory after profile changes.
+# Do not set either value to false.
+DEPLOY_PROFILE=true
+DEPLOY_TIMEOUT_SEC=900
+DEPLOY_PAUSE_SEC=5
+
+ACTIVATE_PROFILE=true
+ACTIVATION_TIMEOUT_SEC=900
+ACTIVATION_PROCEED_ON_REBOOT=true
+
+# -----------------------------------------------------------------------------
+# 8) OS Installation Workflow
+# -----------------------------------------------------------------------------
+ENABLE_OS_INSTALL=false
+
+# Cloud-init source files (per server index 1..SERVER_PROFILE_COUNT)
+OS_CONFIG_DIR="./"
+OS_CONFIG_FILE_PREFIX="sles16-server"
+OS_CONFIG_FILE_SUFFIX=".yaml"
+
+# OS ConfigurationFile object names in Intersight
+OS_CONFIG_NAME_PREFIX="${PREFIX}sles16-server"
+
+# OS Catalog / Distribution binding for OS ConfigurationFile.
+# Use "ORG" to force the org-owned catalog (strict org alignment).
+OS_CATALOG_NAME="ORG"
+# Optional direct override by moid (leave empty for dynamic lookup):
+OS_CATALOG_MOID=""
+OS_HCL_VERSION_PRIMARY="SUSE Linux Enterprise Server 16"
+# Optional direct override by moid (leave empty for dynamic lookup):
+OS_HCL_MOID_PRIMARY=""
+OS_HCL_MOID_SECONDARY=""
+
+# OS Install job controls
+OS_INSTALL_NAME_PREFIX="${PREFIX}sles-install-"
+OS_INSTALL_NAME_PAD_WIDTH=2
+OS_IMAGE_NAME="${PREFIX}sles"
+OS_IMAGE_LINK="${VMEDIA_FILE_LOCATION}"
+# Optional direct override by moid (leave empty for dynamic lookup):
+OS_IMAGE_MOID=""
+OS_INSTALL_METHOD="vMedia"
+OS_INSTALL_TIMEOUT_SEC=14400
+OS_INSTALL_POLL_SEC=30

@@ -1,0 +1,37 @@
+schemeversion: 1
+token: "H1ghV0lt"
+serverurl: "https://10.132.0.16:443"
+os:
+  hostname: "harvester4"
+  password: "Hallo2026!"
+  ssh_authorized_keys:
+    - "ssh-ed25519 AAAAC3NzaC1lZDI1NTEsHKB09k8qGtxDSTG1m5TEPr6E9 nps@linux"
+  dns_nameservers:
+    - "192.168.160.53"
+    - "192.168.160.54"
+  ntp_servers:
+    - "172.26.163.53"
+    - "172.26.163.54"
+install:
+  mode: "join"
+  device: "/dev/sda"
+  datadisk: "/dev/nvme0n1"
+  isourl: "http://192.168.160.29/harvester-v1.8.2-amd64.iso"
+  tty: tty1
+  managementinterface:
+    interfaces:
+      - name: "eno1np0"
+      - name: "eno2np1"
+    bondoptions:
+      mode: "active-backup"
+      miimon: "100"
+    method: static
+    ip: "10.132.0.14"
+    subnetmask: "255.255.255.0"
+    gateway: "10.132.0.254"
+    defaultroute: true
+    vlanid: 1320
+    mtu: 0
+  forcegpt: true
+system_settings:
+  server-version: "v1.8.2"
