@@ -493,25 +493,34 @@ resolve_vmedia_policy_moid() {
 }
 
 ensure_harvester_vmedia_policy() {
-  local policy_moid mappings organization_ref
+  local policy_moid mappings organization_ref iso_name policy_file_location policy_description
   policy_moid="$(resolve_vmedia_policy_moid)"
+  iso_name="$(printf '%s' "${VMEDIA_FILE_LOCATION:-${OS_IMAGE_LINK:-}}" | sed 's/[?#].*$//' | awk -F/ '{print $NF}' | tr '[:upper:]' '[:lower:]')"
+  policy_file_location="$VMEDIA_FILE_LOCATION"
+  if [[ "$iso_name" == *custom* ]]; then
+    policy_file_location=""
+    policy_description="empty CCD FileLocation (custom ISO filename)"
+  else
+    policy_description="Harvester ISO '$VMEDIA_FILE_LOCATION'"
+  fi
+
   mappings="$(jq -c -n \
     --arg device "$VMEDIA_DEVICE_TYPE" \
     --arg protocol "$VMEDIA_MOUNT_PROTOCOL" \
-    --arg location "$VMEDIA_FILE_LOCATION" \
+    --arg location "$policy_file_location" \
     --arg volume "$VMEDIA_VOLUME_NAME" \
     '[{DeviceType:$device,MountProtocol:$protocol,FileLocation:$location,VolumeName:$volume}]')"
   organization_ref="{\"Moid\":\"$ORG_MOID\",\"ObjectType\":\"organization.Organization\"}"
 
   if [[ -z "$policy_moid" ]]; then
-    log "Creating vMedia policy '$VMEDIA_POLICY_NAME' for Harvester ISO '$VMEDIA_FILE_LOCATION'"
+    log "Creating vMedia policy '$VMEDIA_POLICY_NAME' with $policy_description"
     isctl_cmd create vmedia policy \
       --Name "$VMEDIA_POLICY_NAME" \
       --Organization "$organization_ref" \
       --Enabled \
       --Mappings "$mappings" >/dev/null
   else
-    log "Updating vMedia policy '$VMEDIA_POLICY_NAME' (moid=$policy_moid) for Harvester ISO"
+    log "Updating vMedia policy '$VMEDIA_POLICY_NAME' (moid=$policy_moid) with $policy_description"
     isctl_cmd update vmedia policy moid "$policy_moid" \
       --Enabled \
       --Mappings "$mappings" >/dev/null
