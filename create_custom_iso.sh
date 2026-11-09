@@ -66,6 +66,10 @@ done
 [[ -f "$SCRIPT_DIR/ISO/grub.cfg.yaml" ]] || die 'missing ISO/grub.cfg.yaml sample'
 [[ -f "$SCRIPT_DIR/ISO/harvester.cfg.yaml" ]] || die 'missing ISO/harvester.cfg.yaml sample'
 [[ ! -e "$OUTPUT_ISO" ]] || die "refusing to overwrite existing output: $OUTPUT_ISO"
+case "$OUTPUT_ISO" in
+  /*) DISPLAY_OUTPUT_ISO="$OUTPUT_ISO" ;;
+  *) DISPLAY_OUTPUT_ISO="$PWD/$OUTPUT_ISO" ;;
+esac
 
 for command_name in curl xorriso; do
   command -v "$command_name" >/dev/null 2>&1 || die "required command not found: $command_name"
@@ -82,6 +86,43 @@ SOURCE_ISO="$WORK_DIR/harvester-source.iso"
 CUSTOM_GRUB="$WORK_DIR/grub.cfg"
 VERIFY_GRUB="$WORK_DIR/verify-grub.cfg"
 VERIFY_HARVESTER="$WORK_DIR/verify-harvester.cfg"
+
+# Keep URL credentials and query tokens out of the parameter summary.
+SOURCE_URL_DISPLAY="${SOURCE_URL%%\?*}"
+SOURCE_URL_DISPLAY="${SOURCE_URL_DISPLAY%%#*}"
+SOURCE_AUTHORITY="${SOURCE_URL_DISPLAY#https://}"
+SOURCE_HOST="${SOURCE_AUTHORITY%%/*}"
+SOURCE_HOST="${SOURCE_HOST##*@}"
+SOURCE_PATH=""
+if [[ "$SOURCE_AUTHORITY" == */* ]]; then
+  SOURCE_PATH="/${SOURCE_AUTHORITY#*/}"
+fi
+SOURCE_URL_DISPLAY="https://${SOURCE_HOST}${SOURCE_PATH}"
+if [[ "$SOURCE_URL" == *\?* ]]; then
+  SOURCE_URL_DISPLAY+="?<redacted>"
+fi
+if [[ "$SOURCE_URL" == *#* ]]; then
+  SOURCE_URL_DISPLAY+="#<redacted>"
+fi
+
+printf 'ISO build parameters:\n'
+printf '  Source ISO: %s\n' "$SOURCE_URL_DISPLAY"
+printf '  Temp root: %s\n' "$TMP_ROOT"
+printf '  Temporary work directory: %s\n' "$WORK_DIR"
+printf '  Output ISO: %s\n' "$DISPLAY_OUTPUT_ISO"
+printf '  GRUB menu timeout: %s seconds\n' "$MENU_TIMEOUT"
+if [[ "$ALLOW_INSECURE_TLS" == true ]]; then
+  printf '  TLS certificate verification: disabled (--insecure)\n'
+else
+  printf '  TLS certificate verification: enabled\n'
+fi
+printf '\n'
+
+read -r -p 'Continue with these settings? [y/N] ' CONFIRM_BUILD
+case "${CONFIRM_BUILD,,}" in
+  y|yes) ;;
+  *) printf 'Aborted; no download or ISO creation was started.\n'; exit 1 ;;
+esac
 
 if [[ "$ALLOW_INSECURE_TLS" == true ]]; then
   curl --insecure --fail --location --show-error --output "$SOURCE_ISO" "$SOURCE_URL"
