@@ -5,7 +5,7 @@ set -euo pipefail
 # with the reviewed sample in ISO/. Requires curl and xorriso.
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_URL="https://192.168.160.29/harvester-v1.8.2-amd64.iso"
+SOURCE_URL="https://releases.rancher.com/harvester/v1.8.2/harvester-v1.8.2-amd64.iso"
 OUTPUT_ISO="$SCRIPT_DIR/harvester-v1.8.2-amd64-custom.iso"
 MENU_TIMEOUT=15
 ALLOW_INSECURE_TLS=false
